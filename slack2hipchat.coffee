@@ -1,8 +1,6 @@
 # Description:
 #   A way to communicate between Slack and HipChat users. 
 
-Util = require "util"
-
 HIP_CHAT_AUTH_TOKEN =  process.env.HIP_CHAT_AUTH_TOKEN
 SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL
 ROOM_NAME = 'sf'
@@ -18,16 +16,13 @@ module.exports = (robot) ->
 
 sendToHipChat = (msg) ->
   data = urlEncode({
-         message: "(#{SIGNATURE_PREFIX}) #{userMessageText(msg)}",
+         room_id: ROOM_NAME,
+         message: "(#{SIGNATURE_PREFIX}) #{msg.envelope.message.text}",
          message_format: "text",
-         from: msg.envelope.user['name'],
-         room_id: "sf"
+         from: msg.envelope.user['name']
        })
 
-       hipChatPost msg, "/rooms/message", data, (err, res, body) ->
-         msg.send Util.inspect(body)
-         msg.send Util.inspect(err)
-         msg.send Util.inspect(res)
+       hipChatPost msg, "/rooms/message", data
 
 sendToSlack = (msg) ->
   data = JSON.stringify({
@@ -54,7 +49,7 @@ userMessageText = (msg) ->
   "#{msg.envelope.user['name']}: #{msg.envelope.message.text}"
 
 hipChatPost = (httpable, path, data, cb) ->
-  httpable.http("https://api.hipchat.com/v1/#{path}?format=json&auth_token=#{HIP_CHAT_AUTH_TOKEN}").header('Content-Type', 'application/json').post(data) (err, res, body) ->
+  httpable.http("https://api.hipchat.com/v1/#{path}?format=json&auth_token=#{HIP_CHAT_AUTH_TOKEN}").header('Content-Type', 'application/x-www-form-urlencoded').post(data) (err, res, body) ->
     cb(err, res, body) if cb
 
 slackWebhookPost = (httpable, data, cb) ->
