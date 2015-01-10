@@ -10,7 +10,7 @@ module.exports = (robot) ->
   robot.hear ///^(?!(\(#{SIGNATURE_PREFIX}\))).*$///i, (msg) ->
     if msg.envelope.room == 'sf'
       if HIP_CHAT_AUTH_TOKEN
-        sendToHipChat( msg)
+        sendToHipChat(msg)
       else if SLACK_WEBHOOK_URL
         sendToSlack(msg)
 
