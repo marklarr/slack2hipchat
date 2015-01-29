@@ -7,7 +7,7 @@ ROOM_NAME = 'sf'
 SIGNATURE_PREFIX = "s2h"
 
 module.exports = (robot) ->
-  robot.hear ///^(?!(\(#{SIGNATURE_PREFIX}\))).*$///i, (msg) ->
+  robot.hear ///^(?!(\(|:#{SIGNATURE_PREFIX}\)|:)).*$///i, (msg) ->
     if msg.envelope.room == 'sf'
       if HIP_CHAT_AUTH_TOKEN
         sendToHipChat(msg)
@@ -27,7 +27,7 @@ sendToHipChat = (msg) ->
 sendToSlack = (msg) ->
   data = JSON.stringify({
          channel: "##{ROOM_NAME}",
-         text: "(#{SIGNATURE_PREFIX}) #{msg.envelope.message.text}",
+         text: ":#{SIGNATURE_PREFIX}: #{msg.envelope.message.text}",
          username: msg.envelope.user['name'],
          icon_emoji: ":snake:"
        })
