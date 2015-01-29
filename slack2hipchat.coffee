@@ -8,7 +8,7 @@ ROOM_NAME = process.env.SLACK_2_HIPCHAT_ROOM or "sf"
 SIGNATURE_PREFIX = "s2h"
 
 module.exports = (robot) ->
-  robot.hear ///^(?!((\(|:)#{SIGNATURE_PREFIX}(\)|:))).*$///i, (msg) ->
+  robot.hear ///^(?!((\(|\:)#{SIGNATURE_PREFIX}(\)|\:))).*$///i, (msg) ->
     if msg.envelope.room == ROOM_NAME
       if HIP_CHAT_AUTH_TOKEN
         sendToHipChat(msg)
