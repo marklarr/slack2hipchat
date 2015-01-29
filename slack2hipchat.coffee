@@ -2,13 +2,14 @@
 #   A way to communicate between Slack and HipChat users. 
 
 HIP_CHAT_AUTH_TOKEN =  process.env.HIP_CHAT_AUTH_TOKEN
+HIP_CHAT_ROOM_EMOJI = process.env.HIP_CHAT_ROOM_EMOJI or ":snake:"
 SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL
-ROOM_NAME = 'sf'
+ROOM_NAME = process.env.SLACK_2_HIPCHAT_ROOM or "sf"
 SIGNATURE_PREFIX = "s2h"
 
 module.exports = (robot) ->
-  robot.hear ///^(?!(\(#{SIGNATURE_PREFIX}\))).*$///i, (msg) ->
-    if msg.envelope.room == 'sf'
+  robot.hear ///^(?!((\(|\:)#{SIGNATURE_PREFIX}(\)|\:))).*$///i, (msg) ->
+    if msg.envelope.room == ROOM_NAME
       if HIP_CHAT_AUTH_TOKEN
         sendToHipChat(msg)
       else if SLACK_WEBHOOK_URL
@@ -27,9 +28,9 @@ sendToHipChat = (msg) ->
 sendToSlack = (msg) ->
   data = JSON.stringify({
          channel: "##{ROOM_NAME}",
-         text: "(#{SIGNATURE_PREFIX}) #{msg.envelope.message.text}",
+         text: ":#{SIGNATURE_PREFIX}: #{msg.envelope.message.text}",
          username: msg.envelope.user['name'],
-         icon_emoji: ":snake:"
+         icon_emoji: HIP_CHAT_ROOM_EMOJI
        })
 
        slackWebhookPost msg, data
