@@ -1,11 +1,18 @@
 # Description:
 #   A way to communicate between Slack and HipChat users. 
 
+# config for Slack users talking to a foreign HipChat
 HIP_CHAT_AUTH_TOKEN =  process.env.HIP_CHAT_AUTH_TOKEN
-HIP_CHAT_ROOM_EMOJI = process.env.HIP_CHAT_ROOM_EMOJI or ":snake:"
+HIP_CHAT_ROOM_EMOJI = process.env.HIP_CHAT_ROOM_EMOJI or ":snake:"  # affects received message presentation in Slack
+HIP_CHAT_MESSAGE_COLOR = process.env.HIP_CHAT_MESSAGE_COLOR or "purple"
+HIP_CHAT_NOTIFY = process.env.HIP_CHAT_NOTIFY or 1  # HipChat API specifies 0 = false, 1 = true for this parameter
+
+# config for HipChat users talking to a foreign Slack
 SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL
+
+# shared config
 ROOM_NAME = process.env.SLACK_2_HIPCHAT_ROOM or "sf"
-SIGNATURE_PREFIX = "s2h"
+SIGNATURE_PREFIX = "s2h"  # in Slack, will appear as ":s2h:"; in HipChat, as "(s2h)" - recommended: make a custom emoji/emote!
 
 module.exports = (robot) ->
   robot.hear ///^(?!((\(|\:)#{SIGNATURE_PREFIX}(\)|\:))).*$///i, (msg) ->
@@ -20,7 +27,9 @@ sendToHipChat = (msg) ->
          room_id: ROOM_NAME,
          message: "(#{SIGNATURE_PREFIX}) #{msg.envelope.message.text}",
          message_format: "text",
-         from: msg.envelope.user['name']
+         from: msg.envelope.user['name'],
+         color: HIP_CHAT_MESSAGE_COLOR,
+         notify: HIP_CHAT_NOTIFY
        })
 
        hipChatPost msg, "/rooms/message", data
