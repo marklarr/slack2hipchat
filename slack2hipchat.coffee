@@ -11,12 +11,12 @@ HIP_CHAT_NOTIFY = process.env.HIP_CHAT_NOTIFY or 1  # HipChat API specifies 0 = 
 SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL
 
 # shared config
-ROOM_NAME = process.env.SLACK_2_HIPCHAT_ROOM or "sf"
+ROOM_NAMES = process.env.SLACK_2_HIPCHAT_ROOMS or ["sf"]
 SIGNATURE_PREFIX = "s2h"  # in Slack, will appear as ":s2h:"; in HipChat, as "(s2h)" - recommended: make a custom emoji/emote!
 
 module.exports = (robot) ->
   robot.hear ///^(?!((\(|\:)#{SIGNATURE_PREFIX}(\)|\:))).*$///i, (msg) ->
-    if msg.envelope.room == ROOM_NAME
+    if msg.envelope.room in ROOM_NAMES
       if HIP_CHAT_AUTH_TOKEN
         sendToHipChat(msg)
       else if SLACK_WEBHOOK_URL
@@ -24,7 +24,7 @@ module.exports = (robot) ->
 
 sendToHipChat = (msg) ->
   data = urlEncode({
-         room_id: ROOM_NAME,
+         room_id: msg.envelope.room,
          message: "(#{SIGNATURE_PREFIX}) #{msg.envelope.message.text}",
          message_format: "text",
          from: msg.envelope.user['name'],
@@ -36,7 +36,7 @@ sendToHipChat = (msg) ->
 
 sendToSlack = (msg) ->
   data = JSON.stringify({
-         channel: "##{ROOM_NAME}",
+         channel: "##{msg.envelope.room}",
          text: ":#{SIGNATURE_PREFIX}: #{msg.envelope.message.text}",
          username: msg.envelope.user['name'],
          icon_emoji: HIP_CHAT_ROOM_EMOJI
