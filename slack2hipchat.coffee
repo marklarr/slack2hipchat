@@ -11,7 +11,7 @@ HIP_CHAT_NOTIFY = process.env.HIP_CHAT_NOTIFY or 1  # HipChat API specifies 0 = 
 SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL
 
 # shared config
-ROOM_NAMES = process.env.SLACK_2_HIPCHAT_ROOMS.split(",") or ["sf"]
+ROOM_NAMES = process.env.SLACK_2_HIPCHAT_ROOMS?.split(",") or ["sf"]
 SIGNATURE_PREFIX = "s2h"  # in Slack, will appear as ":s2h:"; in HipChat, as "(s2h)" - recommended: make a custom emoji/emote!
 
 module.exports = (robot) ->
